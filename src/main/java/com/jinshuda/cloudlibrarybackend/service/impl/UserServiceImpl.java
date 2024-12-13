@@ -5,10 +5,10 @@ import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jinshuda.cloudlibrarybackend.entity.DTO.UserQueryDTO;
-import com.jinshuda.cloudlibrarybackend.entity.PO.User;
-import com.jinshuda.cloudlibrarybackend.entity.VO.LoginUserVO;
-import com.jinshuda.cloudlibrarybackend.entity.VO.UserVO;
+import com.jinshuda.cloudlibrarybackend.entity.user.dto.UserQueryDTO;
+import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
+import com.jinshuda.cloudlibrarybackend.entity.user.vo.LoginUserVO;
+import com.jinshuda.cloudlibrarybackend.entity.user.vo.UserVO;
 import com.jinshuda.cloudlibrarybackend.enums.UserRoleEnum;
 import com.jinshuda.cloudlibrarybackend.exception.BusinessException;
 import com.jinshuda.cloudlibrarybackend.exception.ErrorCode;
@@ -187,6 +187,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         LoginUserVO loginUserVO = new LoginUserVO();
         BeanUtils.copyProperties(user, loginUserVO);
         return loginUserVO;
+    }
+
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
     }
 }
 

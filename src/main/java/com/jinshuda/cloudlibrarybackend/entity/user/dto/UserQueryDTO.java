@@ -1,4 +1,4 @@
-package com.jinshuda.cloudlibrarybackend.entity.DTO;
+package com.jinshuda.cloudlibrarybackend.entity.user.dto;
 
 import com.jinshuda.cloudlibrarybackend.common.PageRequest;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.jinshuda.cloudlibrarybackend.entity.DTO;
+package com.jinshuda.cloudlibrarybackend.entity.user.dto;
 
 import lombok.Data;
 

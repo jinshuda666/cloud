@@ -1,7 +1,7 @@
 package com.jinshuda.cloudlibrarybackend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jinshuda.cloudlibrarybackend.entity.PO.User;
+import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
 
 
 /**

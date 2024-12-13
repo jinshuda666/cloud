@@ -1,7 +1,7 @@
 package com.jinshuda.cloudlibrarybackend.aop;
 
 import com.jinshuda.cloudlibrarybackend.annotation.AuthCheck;
-import com.jinshuda.cloudlibrarybackend.entity.PO.User;
+import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
 import com.jinshuda.cloudlibrarybackend.enums.UserRoleEnum;
 import com.jinshuda.cloudlibrarybackend.exception.BusinessException;
 import com.jinshuda.cloudlibrarybackend.exception.ErrorCode;

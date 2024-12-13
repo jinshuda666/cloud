@@ -1,4 +1,4 @@
-package com.jinshuda.cloudlibrarybackend.entity.PO;
+package com.jinshuda.cloudlibrarybackend.entity.user.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;

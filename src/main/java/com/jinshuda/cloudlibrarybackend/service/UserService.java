@@ -2,10 +2,12 @@ package com.jinshuda.cloudlibrarybackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jinshuda.cloudlibrarybackend.entity.DTO.UserQueryDTO;
-import com.jinshuda.cloudlibrarybackend.entity.PO.User;
-import com.jinshuda.cloudlibrarybackend.entity.VO.LoginUserVO;
-import com.jinshuda.cloudlibrarybackend.entity.VO.UserVO;
+import com.jinshuda.cloudlibrarybackend.entity.file.po.Picture;
+import com.jinshuda.cloudlibrarybackend.entity.file.vo.PictureVO;
+import com.jinshuda.cloudlibrarybackend.entity.user.dto.UserQueryDTO;
+import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
+import com.jinshuda.cloudlibrarybackend.entity.user.vo.LoginUserVO;
+import com.jinshuda.cloudlibrarybackend.entity.user.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -73,4 +75,12 @@ public interface UserService extends IService<User> {
     UserVO getUserVO(User user);
 
     QueryWrapper<User> getQueryWrapper(UserQueryDTO userQueryDTO);
+
+    /**
+     * 是否为管理员
+     *
+     * @param user
+     * @return
+     */
+    boolean isAdmin(User user);
 }

@@ -12,6 +12,9 @@ spring:
     url: jdbc:mysql://localhost:3306/cloud_library
     username: root
     password: 123456
+  # 设置最大限制上传文件大小为10M
+  multipart:
+    max-file-size: 10MB
 
 mybatis-plus:
   configuration:
@@ -35,6 +38,16 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.jinshuda.cloudlibrarybackend.controller
+
+# 对象存储配置（需要从腾讯云获取）
+cos:
+  client:
+    host: cloud-1333088907.cos.ap-beijing.myqcloud.com
+    secretId: AKIDT8xe6KK5brtgEXcS3FBuPfgT1MSJwLvR
+    secretKey: WpvnTwGNHySikhTgniPvGNFuNeyFI7nH
+    region: ap-beijing
+    bucket: cloud-1333088907
+
 
 
 
