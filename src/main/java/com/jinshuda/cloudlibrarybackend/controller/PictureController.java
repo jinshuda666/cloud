@@ -7,14 +7,12 @@ import com.jinshuda.cloudlibrarybackend.common.BaseResponse;
 import com.jinshuda.cloudlibrarybackend.common.DeleteDTO;
 import com.jinshuda.cloudlibrarybackend.common.ResultUtils;
 import com.jinshuda.cloudlibrarybackend.constant.UserConstant;
-import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureEditDTO;
-import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureQueryDTO;
-import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureUpdateDTO;
-import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureUploadDTO;
+import com.jinshuda.cloudlibrarybackend.entity.file.dto.*;
 import com.jinshuda.cloudlibrarybackend.entity.file.po.Picture;
 import com.jinshuda.cloudlibrarybackend.entity.file.po.PictureTagCategory;
 import com.jinshuda.cloudlibrarybackend.entity.file.vo.PictureVO;
 import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
+import com.jinshuda.cloudlibrarybackend.enums.PictureReviewStatusEnum;
 import com.jinshuda.cloudlibrarybackend.enums.UserRoleEnum;
 import com.jinshuda.cloudlibrarybackend.exception.BusinessException;
 import com.jinshuda.cloudlibrarybackend.exception.ErrorCode;
@@ -45,9 +43,16 @@ public class PictureController {
     @Resource
     private FileManager fileManager;
 
+    /**
+     * 上传图片
+     * @param multipartFile
+     * @param pictureUploadDTO
+     * @param request
+     * @return
+     */
     @ApiOperation(value = "上传图片接口")
     @PostMapping("/upload")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    // @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<PictureVO> uploadPicture(MultipartFile multipartFile, PictureUploadDTO pictureUploadDTO, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         PictureVO pictureVO = pictureService.uploadPicture(multipartFile, pictureUploadDTO, loginUser);
@@ -79,11 +84,11 @@ public class PictureController {
     }
 
     /**
-     * 更新图片（仅管理员可用）
+     * 更新图片
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateDTO pictureUpdateDTO) {
+    // @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateDTO pictureUpdateDTO, HttpServletRequest request) {
         if (pictureUpdateDTO == null || pictureUpdateDTO.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -98,6 +103,9 @@ public class PictureController {
         long id = pictureUpdateDTO.getId();
         Picture oldPicture = pictureService.getById(id);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 补充审核参数
+        User loginUser = userService.getLoginUser(request);
+        pictureService.fileReviewParams(picture, loginUser);
         // 操作数据库
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -155,6 +163,8 @@ public class PictureController {
         long size = pictureQueryDTO.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        // 普通用户默认智能查到已经过审的图片
+        pictureQueryDTO.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
         // 查询数据库
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
                 pictureService.getQueryWrapper(pictureQueryDTO));
@@ -188,12 +198,19 @@ public class PictureController {
         if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
+        // 补充审核参数
+        pictureService.fileReviewParams(picture, loginUser);
         // 操作数据库
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
 
+    /**
+     * 图片分类标签
+     *
+     * @return
+     */
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
@@ -203,5 +220,59 @@ public class PictureController {
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
     }
+
+    /**
+     * 图片审核
+     *
+     * @param pictureReviewDTO
+     * @param request
+     * @return
+     */
+    @PostMapping("/review")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> doPictureReview(@RequestBody PictureReviewDTO pictureReviewDTO, HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureReviewDTO == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        pictureService.doPictureReview(pictureReviewDTO, loginUser);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 通过Url上传图片
+     *
+     * @param pictureUploadDTO
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "通过Url上传图片")
+    @PostMapping("/upload/url")
+    public BaseResponse<PictureVO> uploadPictureByUrl(@RequestBody PictureUploadDTO pictureUploadDTO,
+                                                      HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        String fileUrl = pictureUploadDTO.getFileUrl();
+        PictureVO pictureVO = pictureService.uploadPicture(fileUrl, pictureUploadDTO, loginUser);
+        return ResultUtils.success(pictureVO);
+    }
+
+    /**
+     * 管理员批量抓取上传图片
+     *
+     * @param pictureUploadByBatchDTO
+     * @param request
+     * @return
+     */
+    @PostMapping("/upload/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchDTO pictureUploadByBatchDTO,
+            HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureUploadByBatchDTO == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        int uploadCount = pictureService.uploadPictureByBatch(pictureUploadByBatchDTO, loginUser);
+        return ResultUtils.success(uploadCount);
+    }
+
 
 }

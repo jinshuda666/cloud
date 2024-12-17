@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8123
   servlet:
     context-path: /api
 
@@ -42,7 +42,7 @@ knife4j:
 # 对象存储配置（需要从腾讯云获取）
 cos:
   client:
-    host: cloud-1333088907.cos.ap-beijing.myqcloud.com
+    host: https://cloud-1333088907.cos.ap-beijing.myqcloud.com
     secretId: AKIDT8xe6KK5brtgEXcS3FBuPfgT1MSJwLvR
     secretKey: WpvnTwGNHySikhTgniPvGNFuNeyFI7nH
     region: ap-beijing

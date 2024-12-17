@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureQueryDTO;
+import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureReviewDTO;
+import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureUploadByBatchDTO;
 import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureUploadDTO;
 import com.jinshuda.cloudlibrarybackend.entity.file.po.Picture;
 import com.jinshuda.cloudlibrarybackend.entity.file.vo.PictureVO;
@@ -21,12 +23,12 @@ public interface PictureService extends IService<Picture> {
     /**
      * 上传图片
      *
-     * @param multipartFile
+     * @param inputSource
      * @param pictureUploadDTO
      * @param loginUser
      * @return
      */
-    PictureVO uploadPicture(MultipartFile multipartFile,
+    PictureVO uploadPicture(Object inputSource,
                             PictureUploadDTO pictureUploadDTO,
                             User loginUser);
 
@@ -62,4 +64,26 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     Page<PictureVO> getPictureVOPage(Page<Picture> picturePage, HttpServletRequest request);
+
+    /**
+     * 图片审核
+     *
+     * @param pictureReviewDTO
+     * @param loginUser
+     */
+    void doPictureReview(PictureReviewDTO pictureReviewDTO, User loginUser);
+
+    void fileReviewParams(Picture picture, User loginUser);
+
+    /**
+     * 批量抓取和创建图片
+     *
+     * @param pictureUploadByBatchDTO
+     * @param loginUser
+     * @return 成功创建的图片数
+     */
+    Integer uploadPictureByBatch(PictureUploadByBatchDTO pictureUploadByBatchDTO,
+            User loginUser);
+
+
 }
