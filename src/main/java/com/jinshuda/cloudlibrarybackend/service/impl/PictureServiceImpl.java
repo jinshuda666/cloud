@@ -45,10 +45,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
-* @author 26641
-* @description 针对表【picture(图片)】的数据库操作Service实现
-* @createDate 2024-12-12 17:57:15
-*/
+ * @author 26641
+ * @description 针对表【picture(图片)】的数据库操作Service实现
+ * @createDate 2024-12-12 17:57:15
+ */
 @Slf4j
 @Service
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
@@ -69,7 +69,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         }
         // 校验参数
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
-        // ThrowUtils.throwIf(inputSourc > 10 * 1024 * 1024, ErrorCode.PARAMS_ERROR, "文件大小不能超过 10M");
         // 判断是新增还是删除图片
         Long pictureId = null;
         if (pictureUploadDTO != null) {

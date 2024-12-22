@@ -45,7 +45,7 @@ public class PictureController {
 
     /**
      * 上传图片
-     * @param multipartFile
+     * @param file
      * @param pictureUploadDTO
      * @param request
      * @return
@@ -53,10 +53,10 @@ public class PictureController {
     @ApiOperation(value = "上传图片接口")
     @PostMapping("/upload")
     // @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<PictureVO> uploadPicture(MultipartFile multipartFile, PictureUploadDTO pictureUploadDTO, HttpServletRequest request) {
+    public BaseResponse<PictureVO> uploadPicture(MultipartFile file, PictureUploadDTO pictureUploadDTO, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
-        PictureVO pictureVO = pictureService.uploadPicture(multipartFile, pictureUploadDTO, loginUser);
-        return new BaseResponse(200, pictureVO);
+        PictureVO pictureVO = pictureService.uploadPicture(file, pictureUploadDTO, loginUser);
+        return ResultUtils.success(pictureVO);
     }
 
     /**
@@ -264,6 +264,7 @@ public class PictureController {
      * @param request
      * @return
      */
+    @ApiOperation(value = "批量上传图片")
     @PostMapping("/upload/batch")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchDTO pictureUploadByBatchDTO,
