@@ -2,6 +2,10 @@ server:
   port: 8123
   servlet:
     context-path: /api
+    # session 30天过期
+    session:
+      cookie:
+        max-age: 2592000
 
 spring:
   application:
@@ -22,6 +26,10 @@ spring:
     port: 6379
     timeout: 5000
     password: 123456
+  # session 配置
+  session:
+    store-type: redis
+    timeout: 2592000
 
 mybatis-plus:
   configuration:

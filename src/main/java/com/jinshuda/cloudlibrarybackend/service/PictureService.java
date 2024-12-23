@@ -10,6 +10,7 @@ import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureUploadDTO;
 import com.jinshuda.cloudlibrarybackend.entity.file.po.Picture;
 import com.jinshuda.cloudlibrarybackend.entity.file.vo.PictureVO;
 import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -85,5 +86,18 @@ public interface PictureService extends IService<Picture> {
     Integer uploadPictureByBatch(PictureUploadByBatchDTO pictureUploadByBatchDTO,
             User loginUser);
 
+    /**
+     * 清理图片文件
+     *
+     * @param oldPicture
+     */
+    void clearPictureFile(Picture oldPicture);
 
+    /**
+     * 填充审核参数
+     *
+     * @param picture
+     * @param loginUser
+     */
+    void fillReviewParams(Picture picture, User loginUser);
 }

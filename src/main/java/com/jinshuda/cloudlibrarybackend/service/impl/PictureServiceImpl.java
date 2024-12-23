@@ -20,6 +20,7 @@ import com.jinshuda.cloudlibrarybackend.enums.PictureReviewStatusEnum;
 import com.jinshuda.cloudlibrarybackend.exception.BusinessException;
 import com.jinshuda.cloudlibrarybackend.exception.ErrorCode;
 import com.jinshuda.cloudlibrarybackend.exception.ThrowUtils;
+import com.jinshuda.cloudlibrarybackend.manager.CosManager;
 import com.jinshuda.cloudlibrarybackend.manager.FileManager;
 import com.jinshuda.cloudlibrarybackend.manager.upload.FilePictureUpload;
 import com.jinshuda.cloudlibrarybackend.manager.upload.UrlPictureUpload;
@@ -33,6 +34,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -61,70 +63,136 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     private FilePictureUpload filePictureUpload;
     @Resource
     private UrlPictureUpload urlPictureUpload;
+    @Resource
+    private CosManager cosManager;
+
 
     @Override
-    public PictureVO uploadPicture(Object inputSource, PictureUploadDTO pictureUploadDTO, User loginUser) {
-        if (inputSource == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片为空");
-        }
+    public PictureVO uploadPicture(Object inputSource, PictureUploadDTO pictureUploadRequest, User loginUser) {
         // 校验参数
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
-        // 判断是新增还是删除图片
+        // 判断是新增还是删除
         Long pictureId = null;
-        if (pictureUploadDTO != null) {
-            pictureId = pictureUploadDTO.getId();
+        if (pictureUploadRequest != null) {
+            pictureId = pictureUploadRequest.getId();
         }
-        // 如果是更新图片，需要校验图片是不是存在
+        // 如果是更新，判断图片是否存在
         if (pictureId != null) {
             Picture oldPicture = this.getById(pictureId);
             ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
-            // 仅本人和管理员进行修改
+            // 仅本人或管理员可编辑图片
             if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
         }
-        // 上传图片，得到信息
-        // 按照用户id划分目录
+        // 上传图片，得到图片信息
+        // 按照用户 id 划分目录
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
+        // 根据 inputSource 的类型区分上传方式
         PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
         if (inputSource instanceof String) {
             pictureUploadTemplate = urlPictureUpload;
         }
-        UploadPictureVO uploadPictureVO = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
+        UploadPictureVO uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
+        // 构造要入库的图片信息
         Picture picture = new Picture();
-        if (pictureId != null) {
-            // 如果是更新，补充信息
-            picture.setId(pictureId);
-            picture.setEditTime(new Date());
-        }
-        picture.setUrl(uploadPictureVO.getUrl());
-        // 图片名称
-        String picName = uploadPictureVO.getPicName();
-        if (pictureUploadDTO != null && StrUtil.isNotBlank(pictureUploadDTO.getPicName())) {
-            picName = pictureUploadDTO.getPicName();
+        picture.setUrl(uploadPictureResult.getUrl());
+        picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
+        // 支持外层传递图片名称
+        String picName = uploadPictureResult.getPicName();
+        if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
+            picName = pictureUploadRequest.getPicName();
         }
         picture.setName(picName);
-        picture.setPicSize(uploadPictureVO.getPicSize());
-        picture.setPicWidth(uploadPictureVO.getPicWidth());
-        picture.setPicHeight(uploadPictureVO.getPicHeight());
-        picture.setPicScale(uploadPictureVO.getPicScale());
-        picture.setPicFormat(uploadPictureVO.getPicFormat());
+        picture.setPicSize(uploadPictureResult.getPicSize());
+        picture.setPicWidth(uploadPictureResult.getPicWidth());
+        picture.setPicHeight(uploadPictureResult.getPicHeight());
+        picture.setPicScale(uploadPictureResult.getPicScale());
+        picture.setPicFormat(uploadPictureResult.getPicFormat());
         picture.setUserId(loginUser.getId());
         // 补充审核参数
-        this.fileReviewParams(picture, loginUser);
+        this.fillReviewParams(picture, loginUser);
+        // 操作数据库
+        // 如果 pictureId 不为空，表示更新，否则是新增
         if (pictureId != null) {
-            picture.setEditTime(new Date());
+            // 如果是更新，需要补充 id 和编辑时间
             picture.setId(pictureId);
+            picture.setEditTime(new Date());
         }
-        if (pictureId == null) {
-            picture.setCreateTime(new Date());
-        }
-        picture.setUpdateTime(new Date());
-        picture.setIsDelete(0);
+
         boolean result = this.saveOrUpdate(picture);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+        // 可自行实现，如果是更新，可以清理图片资源
+        // this.clearPictureFile(oldPicture);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败，数据库操作失败");
         return PictureVO.objToVo(picture);
     }
+
+    // @Override
+    // public PictureVO uploadPicture(Object inputSource, PictureUploadDTO pictureUploadDTO, User loginUser) {
+    //     if (inputSource == null) {
+    //         throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片为空");
+    //     }
+    //     // 校验参数
+    //     ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
+    //     // 判断是新增还是删除图片
+    //     Long pictureId = null;
+    //     if (pictureUploadDTO != null) {
+    //         pictureId = pictureUploadDTO.getId();
+    //     }
+    //     // 如果是更新图片，需要校验图片是不是存在
+    //     if (pictureId != null) {
+    //         Picture oldPicture = this.getById(pictureId);
+    //         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+    //         // 仅本人和管理员进行修改
+    //         if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+    //             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+    //         }
+    //     }
+    //     // 上传图片，得到信息
+    //     // 按照用户id划分目录
+    //     String uploadPathPrefix = String.format("public/%s", loginUser.getId());
+    //     PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
+    //     if (inputSource instanceof String) {
+    //         pictureUploadTemplate = urlPictureUpload;
+    //     }
+    //     UploadPictureVO uploadPictureVO = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
+    //     Picture picture = new Picture();
+    //     if (pictureId != null) {
+    //         // 如果是更新，补充信息
+    //         picture.setId(pictureId);
+    //         picture.setEditTime(new Date());
+    //     }
+    //     picture.setUrl(uploadPictureVO.getUrl());
+    //     // 图片名称
+    //     String picName = uploadPictureVO.getPicName();
+    //     if (pictureUploadDTO != null && StrUtil.isNotBlank(pictureUploadDTO.getPicName())) {
+    //         picName = pictureUploadDTO.getPicName();
+    //     }
+    //     picture.setName(picName);
+    //     picture.setPicSize(uploadPictureVO.getPicSize());
+    //     picture.setPicWidth(uploadPictureVO.getPicWidth());
+    //     picture.setPicHeight(uploadPictureVO.getPicHeight());
+    //     picture.setPicScale(uploadPictureVO.getPicScale());
+    //     picture.setPicFormat(uploadPictureVO.getPicFormat());
+    //     picture.setUserId(loginUser.getId());
+    //     picture.setThumbnailUrl(uploadPictureVO.getThumbnailUrl());
+    //     // 补充审核参数
+    //     this.fileReviewParams(picture, loginUser);
+    //     if (pictureId != null) {
+    //         picture.setEditTime(new Date());
+    //         picture.setId(pictureId);
+    //     }
+    //     if (pictureId == null) {
+    //         picture.setCreateTime(new Date());
+    //     }
+    //     picture.setUpdateTime(new Date());
+    //     picture.setIsDelete(0);
+    //     boolean result = this.saveOrUpdate(picture);
+    //     // 删除旧图片资源
+    //     // this.clearPictureFile(old);
+    //     ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+    //     return PictureVO.objToVo(picture);
+    // }
 
     @Override
     public QueryWrapper<Picture> getQueryWrapper(PictureQueryDTO pictureQueryDTO) {
@@ -348,8 +416,47 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         return uploadCount;
     }
 
+    @Async
+    @Override
+    public void clearPictureFile(Picture oldPicture) {
+        // 判断改图片是否被多条记录使用
+        String pictureUrl = oldPicture.getUrl();
+        long count = this.lambdaQuery()
+                .eq(Picture::getUrl, pictureUrl)
+                .count();
+        // 有不止一条记录用到了该图片，不清理
+        if (count > 1) {
+            return;
+        }
+        // 删除图片
+        cosManager.deleteObject(pictureUrl);
+        // 删除缩略图
+        String thumbnailUrl = oldPicture.getThumbnailUrl();
+        if (StrUtil.isNotBlank(thumbnailUrl)) {
+            cosManager.deleteObject(thumbnailUrl);
+        }
+    }
 
 
+    /**
+     * 填充审核参数
+     *
+     * @param picture
+     * @param loginUser
+     */
+    @Override
+    public void fillReviewParams(Picture picture, User loginUser) {
+        if (userService.isAdmin(loginUser)) {
+            // 管理员自动过审
+            picture.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+            picture.setReviewerId(loginUser.getId());
+            picture.setReviewMessage("管理员自动过审");
+            picture.setReviewTime(new Date());
+        } else {
+            // 非管理员，无论是编辑还是创建默认都是待审核
+            picture.setReviewStatus(PictureReviewStatusEnum.REVIEWING.getValue());
+        }
+    }
 }
 
 
