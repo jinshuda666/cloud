@@ -7,7 +7,7 @@ import com.jinshuda.cloudlibrarybackend.mapper.SpaceMapper;
 import org.springframework.stereotype.Service;
 
 /**
-* @author 26641
+* @author 晋树达
 * @description 针对表【space(空间)】的数据库操作Service实现
 * @createDate 2024-12-23 21:13:07
 */

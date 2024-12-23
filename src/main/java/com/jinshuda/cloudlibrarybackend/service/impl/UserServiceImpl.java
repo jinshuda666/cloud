@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import static com.jinshuda.cloudlibrarybackend.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
- * @author 26641
+ * @author 晋树达
  * @description 针对表【user(用户)】的数据库操作Service实现
  * @createDate 2024-12-11 14:21:10
  */

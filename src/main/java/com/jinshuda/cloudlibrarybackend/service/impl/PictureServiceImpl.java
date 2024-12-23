@@ -47,7 +47,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @author 26641
+ * @author 晋树达
  * @description 针对表【picture(图片)】的数据库操作Service实现
  * @createDate 2024-12-12 17:57:15
  */
