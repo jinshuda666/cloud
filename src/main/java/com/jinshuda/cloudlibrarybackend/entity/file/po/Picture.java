@@ -16,7 +16,7 @@ public class Picture implements Serializable {
     /**
      * id
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -48,6 +48,11 @@ public class Picture implements Serializable {
      */
     @TableField(value = "category")
     private String category;
+
+    /**
+     * 空间id
+     */
+    private Long spaceId;
 
     /**
      * 标签（JSON 数组）

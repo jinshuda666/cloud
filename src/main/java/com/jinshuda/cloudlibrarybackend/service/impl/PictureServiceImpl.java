@@ -127,6 +127,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         return PictureVO.objToVo(picture);
     }
 
+    // region
     // @Override
     // public PictureVO uploadPicture(Object inputSource, PictureUploadDTO pictureUploadDTO, User loginUser) {
     //     if (inputSource == null) {
@@ -193,6 +194,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     //     ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
     //     return PictureVO.objToVo(picture);
     // }
+    // endregion
 
     @Override
     public QueryWrapper<Picture> getQueryWrapper(PictureQueryDTO pictureQueryDTO) {
