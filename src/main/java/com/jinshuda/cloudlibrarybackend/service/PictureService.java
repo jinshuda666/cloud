@@ -3,10 +3,7 @@ package com.jinshuda.cloudlibrarybackend.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureQueryDTO;
-import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureReviewDTO;
-import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureUploadByBatchDTO;
-import com.jinshuda.cloudlibrarybackend.entity.file.dto.PictureUploadDTO;
+import com.jinshuda.cloudlibrarybackend.entity.file.dto.*;
 import com.jinshuda.cloudlibrarybackend.entity.file.po.Picture;
 import com.jinshuda.cloudlibrarybackend.entity.file.vo.PictureVO;
 import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
@@ -100,4 +97,10 @@ public interface PictureService extends IService<Picture> {
      * @param loginUser
      */
     void fillReviewParams(Picture picture, User loginUser);
+
+    void deletePicture(long pictureId, User loginUser);
+
+    void editPicture(PictureEditDTO pictureEditDTO, User loginUser);
+
+    void checkPictureAuth(User loginUser, Picture picture);
 }
