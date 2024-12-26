@@ -6,6 +6,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.jinshuda.cloudlibrarybackend.config.CosClientConfig;
+import com.jinshuda.cloudlibrarybackend.entity.file.vo.ImageSearchVO;
 import com.jinshuda.cloudlibrarybackend.entity.file.vo.UploadPictureVO;
 import com.jinshuda.cloudlibrarybackend.exception.BusinessException;
 import com.jinshuda.cloudlibrarybackend.exception.ErrorCode;
@@ -64,7 +65,7 @@ public abstract class PictureUploadTemplate {
                     thumbnailCiObject = objectList.get(1);
                 }
                 // 封装压缩图返回结果
-                return buildResult(originFilename, compressedCiObject, thumbnailCiObject);
+                return buildResult(originFilename, compressedCiObject, thumbnailCiObject, imageInfo);
             }
 
             // 5. 封装返回结果
@@ -102,7 +103,7 @@ public abstract class PictureUploadTemplate {
      * @return
      */
     private UploadPictureVO buildResult(String originalFilename, CIObject compressedCiObject,
-                                        CIObject thumbnailCiObject) {
+                                        CIObject thumbnailCiObject, ImageInfo imageInfo) {
         // 计算宽高
         int picWidth = compressedCiObject.getWidth();
         int picHeight = compressedCiObject.getHeight();
@@ -116,6 +117,7 @@ public abstract class PictureUploadTemplate {
         uploadPictureVO.setPicWidth(picWidth);
         uploadPictureVO.setPicHeight(picHeight);
         uploadPictureVO.setPicScale(picScale);
+        uploadPictureVO.setPicColor(imageInfo.getAve());
         uploadPictureVO.setPicFormat(compressedCiObject.getFormat());
         // 设置缩略图地址
         uploadPictureVO.setThumbnailUrl(cosClientConfig.getHost() + "/" + thumbnailCiObject.getKey());

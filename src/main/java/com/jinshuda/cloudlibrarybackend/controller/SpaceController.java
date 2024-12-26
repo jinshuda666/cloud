@@ -34,6 +34,13 @@ public class SpaceController {
     @Resource
     private UserService userService;
 
+    /**
+     * 创建空间
+     *
+     * @param spaceAddDTO
+     * @param request
+     * @return
+     */
     @PostMapping("/add")
     public BaseResponse<Long> addSpace(@RequestBody SpaceAddDTO spaceAddDTO, HttpServletRequest request) {
         ThrowUtils.throwIf(spaceAddDTO == null, ErrorCode.PARAMS_ERROR);
@@ -42,6 +49,13 @@ public class SpaceController {
         return ResultUtils.success(newId);
     }
 
+    /**
+     * 删除空间
+     *
+     * @param deleteDTO
+     * @param request
+     * @return
+     */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteSpace(@RequestBody DeleteDTO deleteDTO
             , HttpServletRequest request) {
@@ -63,9 +77,15 @@ public class SpaceController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 修改空间（仅管理员可用）
+     *
+     * @param spaceUpdateDTO
+     * @return
+     */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateSpace(@RequestBody SpaceUpdateDTO spaceUpdateDTO) {
+    public BaseResponse<Long> updateSpace(@RequestBody SpaceUpdateDTO spaceUpdateDTO) {
         if (spaceUpdateDTO == null || spaceUpdateDTO.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -85,7 +105,7 @@ public class SpaceController {
         if (!res) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "数据库更新失败");
         }
-        return ResultUtils.success(true);
+        return ResultUtils.success(oldSpace.getId());
     }
 
     /**

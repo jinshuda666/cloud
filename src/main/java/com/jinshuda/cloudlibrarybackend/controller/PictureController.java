@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.jinshuda.cloudlibrarybackend.annotation.AuthCheck;
+import com.jinshuda.cloudlibrarybackend.api.ImageSearchApiFacade;
 import com.jinshuda.cloudlibrarybackend.common.BaseResponse;
 import com.jinshuda.cloudlibrarybackend.common.DeleteDTO;
 import com.jinshuda.cloudlibrarybackend.common.ResultUtils;
@@ -13,6 +14,7 @@ import com.jinshuda.cloudlibrarybackend.constant.UserConstant;
 import com.jinshuda.cloudlibrarybackend.entity.file.dto.*;
 import com.jinshuda.cloudlibrarybackend.entity.file.po.Picture;
 import com.jinshuda.cloudlibrarybackend.entity.file.po.PictureTagCategory;
+import com.jinshuda.cloudlibrarybackend.entity.file.vo.ImageSearchVO;
 import com.jinshuda.cloudlibrarybackend.entity.file.vo.PictureVO;
 import com.jinshuda.cloudlibrarybackend.entity.space.po.Space;
 import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
@@ -335,6 +337,39 @@ public class PictureController {
 
         // 返回结果
         return ResultUtils.success(pictureVOPage);
+    }
+
+    @PostMapping("/edit/batch")
+    public BaseResponse<Boolean> editPictureByBatch(@RequestBody PictureEditByBatchDTO pictureEditByBatchDTO, HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureEditByBatchDTO == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        pictureService.editPictureByBatch(pictureEditByBatchDTO, loginUser);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 以图搜图
+     */
+    @PostMapping("/search/picture")
+    public BaseResponse<List<ImageSearchVO>> searchPictureByPicture(@RequestBody SearchPictureByPictureDTO searchPictureByPictureDTO) {
+        ThrowUtils.throwIf(searchPictureByPictureDTO == null, ErrorCode.PARAMS_ERROR);
+        Long pictureId = searchPictureByPictureDTO.getPictureId();
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR);
+        Picture oldPicture = pictureService.getById(pictureId);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        List<ImageSearchVO> resultList = ImageSearchApiFacade.searchImage(oldPicture.getUrl());
+        return ResultUtils.success(resultList);
+    }
+
+
+    @PostMapping("/search/color")
+    public BaseResponse<List<PictureVO>> searchPictureByColor(@RequestBody SearchPictureByColorDTO searchPictureByColorDTO, HttpServletRequest request) {
+        ThrowUtils.throwIf(searchPictureByColorDTO == null, ErrorCode.PARAMS_ERROR);
+        String picColor = searchPictureByColorDTO.getPicColor();
+        Long spaceId = searchPictureByColorDTO.getSpaceId();
+        User loginUser = userService.getLoginUser(request);
+        List<PictureVO> result = pictureService.searchPictureByColor(spaceId, picColor, loginUser);
+        return ResultUtils.success(result);
     }
 
 
