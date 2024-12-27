@@ -57,15 +57,15 @@ knife4j:
 # 对象存储配置（需要从腾讯云获取）
 cos:
   client:
-    host: https://cloud-1333088907.cos.ap-beijing.myqcloud.com
-    secretId: AKIDT8xe6KK5brtgEXcS3FBuPfgT1MSJwLvR
-    secretKey: WpvnTwGNHySikhTgniPvGNFuNeyFI7nH
-    region: ap-beijing
-    bucket: cloud-1333088907
+    host: https://cxxxxxxxxxxxxxxxxxxxud.com
+    secretId: xxxx
+    secretKey: xxxxxxxxxxxxxxxx7nH
+    region: apxxxxxxxxx
+    bucket: clouxxxxxxxxxxxxx07
 
 # 阿里云百炼AI
 aliYunAi:
-  apiKey: sk-2d70dd89c09a402bbce7339ddcf2c5cb
+  apiKey: skxxxxxxxxxxxxxxxxxxxxxxxxxxxxxc5cb
 
 
 
