@@ -70,7 +70,7 @@ public class CosManager {
         if (file.length() > 2 * 1024) {
             PicOperations.Rule thumbnailRule = new PicOperations.Rule();
             // 拼接缩略图的路径
-            String thumbnailKey = FileUtil.mainName(path) + "_thumbnail." + FileUtil.getSuffix(path);
+            String thumbnailKey = FileUtil.mainName(path) + "_thumbnail." + FileUtil.getSuffix(file);
             thumbnailRule.setFileId(thumbnailKey);
             thumbnailRule.setBucket(cosClientConfig.getBucket());
             // 缩放规则 /thumbnail/<Width>x<Height>>（如果大于原图宽高，则不处理）
