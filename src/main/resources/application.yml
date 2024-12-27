@@ -63,6 +63,10 @@ cos:
     region: ap-beijing
     bucket: cloud-1333088907
 
+# 阿里云百炼AI
+aliYunAi:
+  apiKey: sk-2d70dd89c09a402bbce7339ddcf2c5cb
+
 
 
 

@@ -3,6 +3,7 @@ package com.jinshuda.cloudlibrarybackend.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.jinshuda.cloudlibrarybackend.api.aliyun.entity.CreateOutPaintingTaskResponse;
 import com.jinshuda.cloudlibrarybackend.entity.file.dto.*;
 import com.jinshuda.cloudlibrarybackend.entity.file.po.Picture;
 import com.jinshuda.cloudlibrarybackend.entity.file.vo.PictureVO;
@@ -108,4 +109,6 @@ public interface PictureService extends IService<Picture> {
     void editPictureByBatch(PictureEditByBatchDTO pictureEditByBatchDTO, User loginUser);
 
     List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
+
+    CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
 }
