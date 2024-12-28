@@ -57,15 +57,22 @@ knife4j:
 # 对象存储配置（需要从腾讯云获取）
 cos:
   client:
-    host: https://cxxxxxxxxxxxxxxxxxxxud.com
-    secretId: xxxx
-    secretKey: xxxxxxxxxxxxxxxx7nH
-    region: apxxxxxxxxx
-    bucket: clouxxxxxxxxxxxxx07
+    host: https://cloud-1333088907.cos.ap-beijing.myqcloud.com
+    secretId: AKIDT8xe6KK5brtgEXcS3FBuPfgT1MSJwLvR
+    secretKey: WpvnTwGNHySikhTgniPvGNFuNeyFI7nH
+    region: ap-beijing
+    bucket: cloud-1333088907
 
 # 阿里云百炼AI
 aliYunAi:
-  apiKey: skxxxxxxxxxxxxxxxxxxxxxxxxxxxxxc5cb
+  apiKey: sk-fdb90484021741579945223f02a82fe5
+
+# application.yml
+logging:
+  level:
+    root: WARN
+    org.springframework.web: DEBUG
+    com.example.yourproject: INFO
 
 
 

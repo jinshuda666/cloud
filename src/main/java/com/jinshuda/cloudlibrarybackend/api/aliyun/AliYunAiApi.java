@@ -52,7 +52,7 @@ public class AliYunAiApi {
             }  
             CreateOutPaintingTaskResponse response = JSONUtil.toBean(httpResponse.body(), CreateOutPaintingTaskResponse.class);  
             String errorCode = response.getCode();  
-            if (StrUtil.isNotBlank(errorCode)) {  
+            if (StrUtil.isNotBlank(errorCode)) {
                 String errorMessage = response.getMessage();  
                 log.error("AI 扩图失败，errorCode:{}, errorMessage:{}", errorCode, errorMessage);  
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI 扩图接口响应异常");  
@@ -72,9 +72,9 @@ public class AliYunAiApi {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "任务 id 不能为空");  
         }  
         try (HttpResponse httpResponse = HttpRequest.get(String.format(GET_OUT_PAINTING_TASK_URL, taskId))  
-                .header(Header.AUTHORIZATION, "Bearer " + apiKey)  
+                .header(Header.AUTHORIZATION, "Bearer " + apiKey)
                 .execute()) {  
-            if (!httpResponse.isOk()) {  
+            if (!httpResponse.isOk()) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取任务失败");  
             }  
             return JSONUtil.toBean(httpResponse.body(), GetOutPaintingTaskResponse.class);  

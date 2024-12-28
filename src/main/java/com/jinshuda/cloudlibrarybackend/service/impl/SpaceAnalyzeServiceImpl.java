@@ -56,6 +56,7 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
             // 补充查询范围
             fillAnalyzeQueryWrapper(spaceUsageAnalyzeDTO, queryWrapper);
             List<Object> pictureObjList = pictureService.getBaseMapper().selectObjs(queryWrapper);
+            // 已经使用的空间总大小
             long usedSize = pictureObjList.stream().mapToLong(obj -> (Long) obj).sum();
             long usedCount = pictureObjList.size();
             // 封装返回结果
@@ -84,10 +85,8 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
             spaceUsageAnalyzeVO.setMaxSize(space.getMaxSize());
             spaceUsageAnalyzeVO.setMaxCount(space.getMaxCount());
             // 计算比例
-            double sizeUsageRatio = NumberUtil.round(space.getTotalSize() * 100.0 / space.getMaxSize(), 2).doubleValue();
-            double countUsageRatio = NumberUtil.round(space.getTotalCount() * 100.0 / space.getMaxCount(), 2).doubleValue();
-            spaceUsageAnalyzeVO.setSizeUsageRatio(sizeUsageRatio);
-            spaceUsageAnalyzeVO.setCountUsageRatio(countUsageRatio);
+            spaceUsageAnalyzeVO.setSizeUsageRatio(NumberUtil.round(space.getTotalSize() * 100.0 / space.getMaxSize(), 2).doubleValue());
+            spaceUsageAnalyzeVO.setCountUsageRatio(NumberUtil.round(space.getTotalCount() * 100.0 / space.getMaxCount(), 2).doubleValue());
             return spaceUsageAnalyzeVO;
         }
     }
@@ -137,8 +136,9 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
 
         // 解析标签并统计
         Map<String, Long> tagCountMap = tagsJsonList.stream()
-                // ["Java", "Python"], ["Java", "PHP"] => "Java", "Python", "Java", "PHP"
+                // 将原本的流映射成为另一个流
                 .flatMap(tagsJson -> JSONUtil.toList(tagsJson, String.class).stream())
+                // 统计每个标签出现的次数
                 .collect(Collectors.groupingBy(tag -> tag, Collectors.counting()));
 
         // 转换为响应对象，按照使用次数进行排序
@@ -163,6 +163,7 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
         // 100、120、1000
         List<Long> picSizeList = pictureService.getBaseMapper().selectObjs(queryWrapper)
                 .stream()
+                // 只保留大小不是空的元素
                 .filter(ObjUtil::isNotNull)
                 .map(size -> (Long) size)
                 .collect(Collectors.toList());
