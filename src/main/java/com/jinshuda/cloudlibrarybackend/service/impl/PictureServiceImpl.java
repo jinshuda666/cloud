@@ -475,19 +475,25 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "未找到相应的图片");
         }
         this.checkPictureAuth(loginUser, oldPicture);
-        // 开启事务
-        transactionTemplate.execute(status -> {
-            // 操作数据库
-            this.removeById(pictureId);
-            // 操作空间表
-            boolean res = spaceService.lambdaUpdate()
-                    .eq(Space::getId, oldPicture.getSpaceId())
-                    .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
-                    .setSql("totalCount = totalCount - 1")
-                    .update();
-            ThrowUtils.throwIf(!res, ErrorCode.OPERATION_ERROR, "额度更新失败");
-            return true;
-        });
+        if (oldPicture.getSpaceId() != null) {
+            // 开启事务
+            transactionTemplate.execute(status -> {
+                // 操作数据库
+                this.removeById(pictureId);
+                // 操作空间表
+                boolean res = spaceService.lambdaUpdate()
+                        .eq(Space::getId, oldPicture.getSpaceId())
+                        .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
+                        .setSql("totalCount = totalCount - 1")
+                        .update();
+                ThrowUtils.throwIf(!res, ErrorCode.OPERATION_ERROR, "额度更新失败");
+                return true;
+            });
+        }
+        boolean removed = this.removeById(pictureId);
+        if (!removed) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "删除图片失败");
+        }
         // 异步清理文件
         this.clearPictureFile(oldPicture);
     }

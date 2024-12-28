@@ -6,7 +6,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.jinshuda.cloudlibrarybackend.config.CosClientConfig;
-import com.jinshuda.cloudlibrarybackend.entity.file.vo.ImageSearchVO;
 import com.jinshuda.cloudlibrarybackend.entity.file.vo.UploadPictureVO;
 import com.jinshuda.cloudlibrarybackend.exception.BusinessException;
 import com.jinshuda.cloudlibrarybackend.exception.ErrorCode;

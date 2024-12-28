@@ -49,4 +49,6 @@ public interface SpaceService extends IService<Space> {
      * @return
      */
     QueryWrapper<Space> getQueryWrapper(SpaceQueryDTO spaceQueryDTO);
+
+    void checkSpaceAuth(Space space, User loginUser);
 }
