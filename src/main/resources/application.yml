@@ -67,13 +67,5 @@ cos:
 aliYunAi:
   apiKey: sk-fdb90484021741579945223f02a82fe5
 
-# application.yml
-logging:
-  level:
-    root: WARN
-    org.springframework.web: DEBUG
-    com.example.yourproject: INFO
-
-
 
 
