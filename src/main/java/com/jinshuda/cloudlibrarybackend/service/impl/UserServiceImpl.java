@@ -1,5 +1,6 @@
 package com.jinshuda.cloudlibrarybackend.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
@@ -12,6 +13,7 @@ import com.jinshuda.cloudlibrarybackend.entity.user.vo.UserVO;
 import com.jinshuda.cloudlibrarybackend.enums.UserRoleEnum;
 import com.jinshuda.cloudlibrarybackend.exception.BusinessException;
 import com.jinshuda.cloudlibrarybackend.exception.ErrorCode;
+import com.jinshuda.cloudlibrarybackend.manager.auth.StpKit;
 import com.jinshuda.cloudlibrarybackend.mapper.UserMapper;
 import com.jinshuda.cloudlibrarybackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -107,6 +109,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         // 3. 记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        // 将登录信息保存到sa-token
+        StpKit.SPACE.login(user.getId());
+        StpUtil.getSession().set(USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
     }
 
