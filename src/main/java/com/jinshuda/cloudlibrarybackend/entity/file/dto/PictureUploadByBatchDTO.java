@@ -5,14 +5,14 @@ import lombok.Data;
 @Data
 public class PictureUploadByBatchDTO {
   
-    /**  
+    /**
      * 搜索词  
-     */  
-    private String searchText;  
+     */
+    private String searchText;
   
-    /**  
+    /**
      * 抓取数量  
-     */  
+     */
     private Integer count = 10;
 
     /**

@@ -17,25 +17,25 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class AliYunAiApi {  
+public class AliYunAiApi {
     // 读取配置文件  
     @Value("${aliYunAi.apiKey}")
-    private String apiKey;  
+    private String apiKey;
   
     // 创建任务地址  
-    public static final String CREATE_OUT_PAINTING_TASK_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/image2image/out-painting";  
+    public static final String CREATE_OUT_PAINTING_TASK_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/image2image/out-painting";
   
     // 查询任务状态  
-    public static final String GET_OUT_PAINTING_TASK_URL = "https://dashscope.aliyuncs.com/api/v1/tasks/%s";  
+    public static final String GET_OUT_PAINTING_TASK_URL = "https://dashscope.aliyuncs.com/api/v1/tasks/%s";
   
-    /**  
+    /**
      * 创建任务  
      *  
      * @param createOutPaintingTaskRequest  
      * @return  
-     */  
+     */
     public CreateOutPaintingTaskResponse createOutPaintingTask(CreateOutPaintingTaskRequest createOutPaintingTaskRequest) {
-        if (createOutPaintingTaskRequest == null) {  
+        if (createOutPaintingTaskRequest == null) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "扩图参数为空");
         }  
         // 发送请求  
@@ -46,38 +46,38 @@ public class AliYunAiApi {
                 .header(Header.CONTENT_TYPE, ContentType.JSON.getValue())
                 .body(JSONUtil.toJsonStr(createOutPaintingTaskRequest));
         try (HttpResponse httpResponse = httpRequest.execute()) {
-            if (!httpResponse.isOk()) {  
-                log.error("请求异常：{}", httpResponse.body());  
-                throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI 扩图失败");  
+            if (!httpResponse.isOk()) {
+                log.error("请求异常：{}", httpResponse.body());
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI 扩图失败");
             }  
-            CreateOutPaintingTaskResponse response = JSONUtil.toBean(httpResponse.body(), CreateOutPaintingTaskResponse.class);  
-            String errorCode = response.getCode();  
+            CreateOutPaintingTaskResponse response = JSONUtil.toBean(httpResponse.body(), CreateOutPaintingTaskResponse.class);
+            String errorCode = response.getCode();
             if (StrUtil.isNotBlank(errorCode)) {
-                String errorMessage = response.getMessage();  
-                log.error("AI 扩图失败，errorCode:{}, errorMessage:{}", errorCode, errorMessage);  
-                throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI 扩图接口响应异常");  
+                String errorMessage = response.getMessage();
+                log.error("AI 扩图失败，errorCode:{}, errorMessage:{}", errorCode, errorMessage);
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI 扩图接口响应异常");
             }  
-            return response;  
+            return response;
         }  
     }  
   
-    /**  
+    /**
      * 查询创建的任务  
      *  
      * @param taskId  
      * @return  
-     */  
+     */
     public GetOutPaintingTaskResponse getOutPaintingTask(String taskId) {
         if (StrUtil.isBlank(taskId)) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "任务 id 不能为空");  
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "任务 id 不能为空");
         }  
         try (HttpResponse httpResponse = HttpRequest.get(String.format(GET_OUT_PAINTING_TASK_URL, taskId))  
                 .header(Header.AUTHORIZATION, "Bearer " + apiKey)
-                .execute()) {  
+                .execute()) {
             if (!httpResponse.isOk()) {
-                throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取任务失败");  
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取任务失败");
             }  
-            return JSONUtil.toBean(httpResponse.body(), GetOutPaintingTaskResponse.class);  
+            return JSONUtil.toBean(httpResponse.body(), GetOutPaintingTaskResponse.class);
         }  
     }  
 }

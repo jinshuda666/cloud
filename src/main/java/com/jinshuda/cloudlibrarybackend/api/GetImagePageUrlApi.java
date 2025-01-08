@@ -16,12 +16,12 @@ import java.util.Map;
 @Slf4j
 public class GetImagePageUrlApi {
   
-    /**  
+    /**
      * 获取图片页面地址  
      *  
      * @param imageUrl  
      * @return  
-     */  
+     */
     public static String getImagePageUrl(String imageUrl) {
         // 1. 准备请求参数  
         Map<String, Object> formData = new HashMap<>();

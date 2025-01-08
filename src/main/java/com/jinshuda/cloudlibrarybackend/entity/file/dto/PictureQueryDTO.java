@@ -12,59 +12,59 @@ import java.util.List;
 @Data
 public class PictureQueryDTO extends PageRequest implements Serializable {
   
-    /**  
+    /**
      * id  
-     */  
-    private Long id;  
+     */
+    private Long id;
   
-    /**  
+    /**
      * 图片名称  
-     */  
-    private String name;  
+     */
+    private String name;
   
-    /**  
+    /**
      * 简介  
-     */  
-    private String introduction;  
+     */
+    private String introduction;
   
-    /**  
+    /**
      * 分类  
-     */  
-    private String category;  
+     */
+    private String category;
   
-    /**  
+    /**
      * 标签  
-     */  
+     */
     private List<String> tags;
   
-    /**  
+    /**
      * 文件体积  
-     */  
-    private Long picSize;  
+     */
+    private Long picSize;
   
-    /**  
+    /**
      * 图片宽度  
-     */  
-    private Integer picWidth;  
+     */
+    private Integer picWidth;
   
-    /**  
+    /**
      * 图片高度  
-     */  
-    private Integer picHeight;  
+     */
+    private Integer picHeight;
   
-    /**  
+    /**
      * 图片比例  
-     */  
-    private Double picScale;  
+     */
+    private Double picScale;
   
-    /**  
+    /**
      * 图片格式  
-     */  
-    private String picFormat;  
+     */
+    private String picFormat;
   
-    /**  
+    /**
      * 搜索词（同时搜名称、简介等）  
-     */  
+     */
     private String searchText;
 
     /**
@@ -82,9 +82,9 @@ public class PictureQueryDTO extends PageRequest implements Serializable {
      */
     private Long reviewerId;
 
-    /**  
+    /**
      * 用户 id  
-     */  
+     */
     private Long userId;
 
     /**
@@ -107,5 +107,5 @@ public class PictureQueryDTO extends PageRequest implements Serializable {
      */
     private Date endEditTime;
 
-    private static final long serialVersionUID = 1L;  
+    private static final long serialVersionUID = 1L;
 }

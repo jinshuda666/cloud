@@ -1,10 +1,12 @@
 package com.jinshuda.cloudlibrarybackend.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jinshuda.cloudlibrarybackend.constant.UserConstant;
 import com.jinshuda.cloudlibrarybackend.entity.user.dto.UserQueryDTO;
 import com.jinshuda.cloudlibrarybackend.entity.user.po.User;
 import com.jinshuda.cloudlibrarybackend.entity.user.vo.LoginUserVO;
@@ -12,6 +14,7 @@ import com.jinshuda.cloudlibrarybackend.entity.user.vo.UserVO;
 import com.jinshuda.cloudlibrarybackend.enums.UserRoleEnum;
 import com.jinshuda.cloudlibrarybackend.exception.BusinessException;
 import com.jinshuda.cloudlibrarybackend.exception.ErrorCode;
+import com.jinshuda.cloudlibrarybackend.manager.auth.StpKit;
 import com.jinshuda.cloudlibrarybackend.mapper.UserMapper;
 import com.jinshuda.cloudlibrarybackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -88,25 +91,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
         if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号错误");
         }
         if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码错误");
         }
-        // 2. 加密
+        // 2. 对用户传递的密码进行加密
         String encryptPassword = getEncryptPassword(userPassword);
-        // 查询用户是否存在
+        // 3. 查询数据库中的用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         queryWrapper.eq("userPassword", encryptPassword);
         User user = this.baseMapper.selectOne(queryWrapper);
-        // 用户不存在
+        // 不存在，抛异常
         if (user == null) {
             log.info("user login failed, userAccount cannot match userPassword");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或者密码错误");
         }
-        // 3. 记录用户的登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        // 4. 保存用户的登录态
+        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        // 记录用户登录态到 Sa-token，便于空间鉴权时使用，注意保证该用户信息与 SpringSession 中的信息过期时间一致
+        StpKit.SPACE.login(user.getId());
+        StpKit.SPACE.getSession().set(UserConstant.USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
     }
 
@@ -134,6 +140,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (userObj == null) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
         }
+        User user = this.getLoginUser(request);
+        StpKit.SPACE.logout(user.getId());
+        StpKit.SPACE.getSession().delete(UserConstant.USER_LOGIN_STATE);
         // 移除登录态
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return true;

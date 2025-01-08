@@ -7,15 +7,15 @@ import java.io.Serializable;
 @Data
 public class SearchPictureByColorDTO implements Serializable {
   
-    /**  
+    /**
      * 图片主色调  
-     */  
-    private String picColor;  
+     */
+    private String picColor;
   
-    /**  
+    /**
      * 空间 id  
-     */  
-    private Long spaceId;  
+     */
+    private Long spaceId;
   
-    private static final long serialVersionUID = 1L;  
+    private static final long serialVersionUID = 1L;
 }

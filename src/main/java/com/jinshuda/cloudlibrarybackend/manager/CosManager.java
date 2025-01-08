@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class CosManager {  
+public class CosManager {
   
     @Resource
     private CosClientConfig cosClientConfig;
