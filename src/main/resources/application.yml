@@ -46,7 +46,7 @@ mybatis-plus:
 knife4j:
   enable: true
   openapi:
-    title: "云图库平台"
+    title: "云设计平台"
     version: 1.0
     group:
       default:
@@ -57,15 +57,14 @@ knife4j:
 # 对象存储配置（需要从腾讯云获取）
 cos:
   client:
-    host: https://cloud-1333088907.cos.ap-beijing.myqcloud.com
-    secretId: AKIDT8xe6KK5brtgEXcS3FBuPfgT1MSJwLvR
-    secretKey: WpvnTwGNHySikhTgniPvGNFuNeyFI7nH
-    region: ap-beijing
-    bucket: cloud-1333088907
+    host: 不给看
+    secretId: 不给看
+    secretKey: 不给看
+    region: 不给看
+    bucket: 不给看
 
 # 阿里云百炼AI
 aliYunAi:
-  apiKey: sk-fdb90484021741579945223f02a82fe5
-
+  apiKey: 不给看
 
 
